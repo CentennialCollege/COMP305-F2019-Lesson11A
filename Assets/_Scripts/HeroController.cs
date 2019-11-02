@@ -1,26 +1,21 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Channels;
+//using System.Runtime.Remoting.Channels;
 using UnityEngine;
 using Util;
 
 public class HeroController : MonoBehaviour
 {
     public Animator animator;
-
     public HeroAnimState heroAnimState;
-
     public SpriteRenderer spriteRenderer;
-
     public Transform groundTarget;
-
     public Rigidbody2D playerRigidBody;
-
-
     public bool isGrounded;
-
     public AudioSource jumpSound;
     public float jumpForce = 200.0f;
+    public Vector2 maximumVelocity = new Vector2(6.0f, 12.0f);
 
     // Start is called before the first frame update
     void Start()
@@ -86,6 +81,7 @@ public class HeroController : MonoBehaviour
             heroAnimState = HeroAnimState.JUMP;
             jumpSound.Play();
             playerRigidBody.AddForce(Vector2.up * jumpForce);
+           
             isGrounded = false;
         }
 
@@ -95,5 +91,12 @@ public class HeroController : MonoBehaviour
             animator.SetInteger("AnimState", (int)HeroAnimState.IDLE);
             heroAnimState = HeroAnimState.IDLE;
         }
+
+        playerRigidBody.velocity =
+            new Vector2(
+                Mathf.Clamp(playerRigidBody.velocity.x,
+                    -maximumVelocity.x, maximumVelocity.x),
+                Mathf.Clamp(playerRigidBody.velocity.y,
+                    -maximumVelocity.y, maximumVelocity.y));
     }
 }

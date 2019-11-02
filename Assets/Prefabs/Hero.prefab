@@ -104,7 +104,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 3217644904375712336, guid: a893ec38011bd03458de6b6eda5ca2b0,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -153,8 +153,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 8098595957783976760}
   groundTarget: {fileID: 2136003849}
   playerRigidBody: {fileID: 104349101}
-  grounded: 0
+  isGrounded: 0
   jumpSound: {fileID: 573323712}
+  jumpForce: 130
 --- !u!70 &7498572400351641131
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
