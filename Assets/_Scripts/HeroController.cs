@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Channels;
 using UnityEngine;
 using Util;
 
@@ -16,13 +17,16 @@ public class HeroController : MonoBehaviour
     public Rigidbody2D playerRigidBody;
 
 
-    public bool grounded;
+    public bool isGrounded;
+
+    public AudioSource jumpSound;
+    public float jumpForce = 200.0f;
 
     // Start is called before the first frame update
     void Start()
     {
         heroAnimState = HeroAnimState.IDLE;
-        grounded = false;
+        isGrounded = false;
         
     }
 
@@ -31,15 +35,22 @@ public class HeroController : MonoBehaviour
     {
         //Debug.DrawRay(transform.position, Vector2.down *2, Color.yellow);
 
-        bool hit = Physics2D.Linecast(
-                transform.position,
-                groundTarget.position,
-                1 << LayerMask.NameToLayer("Ground"));
+        transform.position = new Vector3(
+            transform.position.x, 
+            transform.position.y, 
+            0.0f);
+
+        //bool hit = Physics2D.Linecast(
+        //        transform.position,
+        //        groundTarget.position,
+        //        1 << LayerMask.NameToLayer("Ground"));
 
 
-        grounded = hit;
-
-
+        isGrounded = Physics2D.BoxCast(
+            transform.position, 
+            new Vector2(2.0f, 1.0f), 0.0f, 
+            Vector2.down, 1.0f, 
+            1 << LayerMask.NameToLayer("Ground"));
 
 
         // Idle
@@ -51,7 +62,7 @@ public class HeroController : MonoBehaviour
 
 
         // moving to the right
-        if((Input.GetAxis("Horizontal") > 0) && (grounded))
+        if((Input.GetAxis("Horizontal") > 0) && (isGrounded))
         {
             animator.SetInteger("AnimState", (int)HeroAnimState.WALK);
             heroAnimState = HeroAnimState.WALK;
@@ -60,7 +71,7 @@ public class HeroController : MonoBehaviour
         }
 
         // moving to the left
-        if((Input.GetAxis("Horizontal") < 0) && (grounded))
+        if((Input.GetAxis("Horizontal") < 0) && (isGrounded))
         {
             animator.SetInteger("AnimState", (int)HeroAnimState.WALK);
             heroAnimState = HeroAnimState.WALK;
@@ -69,12 +80,13 @@ public class HeroController : MonoBehaviour
         }
 
         // jumping
-        if((Input.GetAxis("Jump") > 0) && (grounded))
+        if((Input.GetAxis("Jump") > 0) && (isGrounded))
         {
             animator.SetInteger("AnimState", (int)HeroAnimState.JUMP);
             heroAnimState = HeroAnimState.JUMP;
-            playerRigidBody.AddForce(Vector2.up * 900.0f);
-            grounded = false;
+            jumpSound.Play();
+            playerRigidBody.AddForce(Vector2.up * jumpForce);
+            isGrounded = false;
         }
 
         // not jumping
