@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Util;
@@ -6,6 +7,7 @@ using Util;
 public enum EnemyState
 {
     PATROL,
+    PERSUE,
     ATTACK,
     FLEE
 }
@@ -39,6 +41,7 @@ public class EnemyController : MonoBehaviour
     public Transform lineOfSight;
     public EnemyState enemyState = EnemyState.PATROL;
     public bool playerHasBeenSeen;
+    public Transform player;
 
 
     // Start is called before the first frame update
@@ -52,11 +55,63 @@ public class EnemyController : MonoBehaviour
     {
         Move();
         CheckLineOfSight();
+        CheckEnemyState();
+        TakeAction();
 
         if (Input.GetKeyDown(KeyCode.K))
         {
+            currentHealth -= 1.0f;
             healthBar.SetDamage(0.1f);
         }
+    }
+
+    private void TakeAction()
+    {
+        switch (enemyState)
+        {
+            case EnemyState.PATROL:
+                speed = 1.5f;
+                break;
+            case EnemyState.PERSUE:
+                speed = 5.0f;
+
+                break;
+            case EnemyState.ATTACK:
+                // jump at the player
+
+                break;
+            case EnemyState.FLEE:
+
+                // run away from the player's position
+                break;
+        }
+    }
+
+    private void CheckEnemyState()
+    {
+        if (playerHasBeenSeen)
+        {
+            if (currentHealth > (0.5 * maxHealth))
+            {
+                enemyState = EnemyState.PERSUE;
+            }
+
+            if (Vector2.Distance(transform.position, player.position) <= 1.0f)
+            {
+                enemyState = EnemyState.ATTACK;
+            }
+
+            if (Vector2.Distance(transform.position, player.position) >= 10.0f)
+            {
+                enemyState = EnemyState.PATROL;
+            }
+        }
+
+        if (currentHealth < (0.3 * maxHealth))
+        {
+            enemyState = EnemyState.FLEE;
+        }
+
     }
 
     void Move()
@@ -102,9 +157,28 @@ public class EnemyController : MonoBehaviour
                 transform.position,
                 lineOfSight.position,
                 1 << LayerMask.NameToLayer("Player"));
+
+            if (playerHasBeenSeen)
+            {
+                var hit = Physics2D.Linecast(
+                    transform.position,
+                    lineOfSight.position,
+                    1 << LayerMask.NameToLayer("Player"));
+
+                player = hit.transform;
+            }
         }
         
 
         Debug.DrawRay(this.transform.position, new Vector2(Mathf.Clamp(lineOfSight.position.x, 0.0f, 1.0f) * (lineOfSight.position.x - transform.position.x), 0.0f), Color.yellow);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            currentHealth -= 1.0f;
+            healthBar.SetDamage(0.1f);
+        }
     }
 }

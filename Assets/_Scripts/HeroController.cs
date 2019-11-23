@@ -17,6 +17,8 @@ public class HeroController : MonoBehaviour
     public float jumpForce = 200.0f;
     public Vector2 maximumVelocity = new Vector2(6.0f, 12.0f);
 
+    public LayerMask layermask;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,7 +47,7 @@ public class HeroController : MonoBehaviour
             transform.position, 
             new Vector2(2.0f, 1.0f), 0.0f, 
             Vector2.down, 1.0f, 
-            1 << LayerMask.NameToLayer("Ground"));
+            layermask);
 
 
         // Idle
